@@ -1,0 +1,13 @@
+{
+    "files.autoSave": "onFocusChange",
+
+    "python.pythonPath": "../venv/bin/python3",
+    "python.linting.pylintPath": "../venv/bin/pylint",
+    "python.linting.enabled": true,
+    "python.linting.lintOnSave": true,
+    "python.linting.pylintArgs": [
+        "--load-plugins",
+        "pylint_django"
+    ],
+    "python.linting.pycodestyleEnabled": true
+}
