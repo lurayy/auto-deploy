@@ -1,6 +1,7 @@
 appdirs==1.4.3
 asgiref==3.3.1
 astroid==2.5.2
+autopep8==1.5.6
 CacheControl==0.12.6
 certifi==2019.11.28
 chardet==3.0.4
@@ -22,6 +23,7 @@ msgpack==0.6.2
 packaging==20.3
 pep517==0.8.2
 progress==1.5
+pycodestyle==2.7.0
 pylint==2.7.2
 pyparsing==2.4.6
 python-dotenv==0.16.0
