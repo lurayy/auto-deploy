@@ -1,13 +1,43 @@
 import os
 
 
+def update_app(app):
+    home = '/home/ubuntu'
+    os.chdir(home)
+    if not os.path.exists(f'{app.location}'):
+        os.system(f'git clone {app.repo}')
+    os.chdir(f'{app.location}')
+    os.system(f'git checkout {app.branch}')
+    os.system(f'git pull origin {app.branch}')
+    os.system(f'sudo service {app.name}-{app.branch} restart')
+
+
+def create_app(app):
+    home = '/home/ubuntu'
+    os.chdir(home)
+    if not os.path.exists(f'{home}/{app.name}'):
+        os.mkdir(f'{home}/{app.name}')
+    os.chdir(f'{home}/{app.name}')
+    print(app.location)
+    if not os.path.exists(f'{app.location}'):
+        os.system(f'git clone {app.repo} {app.branch}')
+    os.chdir(f'{app.location}')
+    os.system(f'git checkout {app.branch}')
+    os.system(f'git pull origin {app.branch}')
+    create_env(app)
+    create_uwsgi(app)
+    create_service_config(app)
+    create_nginx_config(app)
+
+
 def create_nginx_config(app):
-    location = '/etc/nginx/sites-enabled/{}.config'.format(app.name)
+    location = f'/etc/nginx/sites-enabled/{app.name}-{app.branch}.config'
     if os.path.exists(location):
-        os.remove(location)
-    with open(location, 'w') as nginx_config_file:
+        os.system(f'sudo rm {location}')
+    temp = app.location+f'/app/config/{app.name}-{app.branch}.config'
+    with open(temp, 'w') as nginx_config_file:
         nginx_config_file.writelines([
-            'upstream {}'.format(app.name),
+            f'upstream {app.name}-{app.branch}',
             '{',
             '    server unix:/{}/app/run/uwsgi.sock;'.format(app.location),
             '}',
@@ -32,14 +62,19 @@ def create_nginx_config(app):
             'error_log {}/app/logs/nginx/error.log'.format(app.location),
             '}',
         ])
+    os.system(f'sudo cp {temp} {location}')
     os.system('nginx -s reload')
 
 
 def create_service_config(app):
-    location = '/etc/systemd/system/{}.service'.format(app.name)
+    location = f'/etc/systemd/system/{app.name}-{app.branch}.service'
+    temp = app.location+f'/app/config/{app.name}-{app.branch}.service'
     if os.path.exists(location):
-        os.remove(location)
-    with open(location, 'w') as config:
+        print('asdfasdf')
+        os.system(f'sudo rm {location}')
+    print('oie')
+    with open(temp, 'w') as config:
+
         config.writelines([
             '[Unit]',
             f'Description=Automated deployemnt of {app.name}',
@@ -58,4 +93,54 @@ def create_service_config(app):
             '',
             '[Install]',
             'WantedBy=multi-user.target'
+        ])
+    print('here')
+    os.system(f'sudo cp {temp} {location}')
+    print('hasdf')
+    os.chdir('/etc/systemd/system/')
+    os.system('systemctl daemon-reload')
+    os.system(f'systemctl enable {app.name}-{app.branch}.service')
+
+
+def create_env(app):
+    os.chdir(app.location)
+    # have to do it manually for now
+    os.system('sudo -u ubuntu virtualenv -p python3 venv')
+    # os.system('sudo -u ubuntu -s source venv/bin/activate')
+    # os.system('sudo -u ubuntu pip3 install -r requirements.txt')
+    # os.system('sudo -u ubuntu -s deactivate')
+
+
+def create_uwsgi(app):
+    location = app.location+'/app/config/uwsgi.ini'
+    if os.path.exists(location):
+        os.remove(location)
+    with open(location, 'w') as config:
+        config.writelines([
+            '[uwsgi]',
+            'uid = ubuntu',
+            'gid = ubuntu',
+            'project_name = app',
+            f'base_dir = {app.location}/app',
+            f'virtualenv = {app.location}/venv'
+            'chdir = %(base_dir)',
+            'module =  %(project_name).wsgi:application',
+            'master = true',
+            'processes = 4',
+            'post-buffering = 204800',
+            'thunder-lock = True',
+            'uwsgi-socket = %(base_dir)/run/uwsgi.sock',
+            'chmod-socket = 666',
+            'socket-timeout = 300',
+            'reload-mercy = 8',
+            'reload-on-as = 512',
+            'harakiri = 50',
+            'max-requests = 5000',
+            'vacuum = true',
+            'disable-logging = True',
+            'logto = %(base_dir)/logs/uwsgi/uwsgi.log',
+            'log-maxsize = 20971520',
+            'log-backupname = %(base_dir)/logs/uwsgi/old-uwsgi.log',
+            'touch-reload = %(base_dir)/src/',
+            'max-worker-lifetime = 300'
         ])

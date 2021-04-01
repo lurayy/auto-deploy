@@ -15,7 +15,9 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from handler.views import ping_server
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path('super/', admin.site.urls),
+    path('', ping_server)
 ]
