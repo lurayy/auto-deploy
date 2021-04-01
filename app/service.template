@@ -1,0 +1,26 @@
+[uwsgi]
+uid = ubuntu
+gid = ubuntu
+project_name = app
+base_dir = /home/ubuntu/mandala/auto-deploy/app
+virtualenv = /home/ubuntu/mandala/auto-deploy/venv
+chdir = %(base_dir)
+module =  %(project_name).wsgi:application
+master = true
+processes = 4
+post-buffering = 204800
+thunder-lock = True
+uwsgi-socket = %(base_dir)/run/uwsgi.sock
+chmod-socket = 666
+socket-timeout = 300
+reload-mercy = 8
+reload-on-as = 512
+harakiri = 50
+max-requests = 5000
+vacuum = true
+disable-logging = True
+logto = %(base_dir)/logs/uwsgi/uwsgi.log
+log-maxsize = 20971520
+log-backupname = %(base_dir)/logs/uwsgi/old-uwsgi.log
+touch-reload = %(base_dir)/src/
+max-worker-lifetime = 300

@@ -29,11 +29,11 @@ import json
 #     }
 #     build_image(dotdict(app))
 data = {
-    'repository': 'git@github.com:ubuntu/mandalamayae-backend.git',
+    'repository': 'git@github.com:mandalaitsolutions/erp-booksmandala-backend.git',
     'data': {
         'branch': 'master',
-        'domain': 'localhost'
+        'domain': 'api.bm.erp.bizmandala.com'
     }
 }
-x = requests.post('http://localhost:8000/', data=json.dumps(data))
+x = requests.post('http://40.121.7.188/', data=json.dumps(data))
 print(x.text)

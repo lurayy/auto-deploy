@@ -1,14 +1,18 @@
 import os
+from sh import git
 
 
 def update_app(app):
     home = '/home/ubuntu'
     os.chdir(home)
     if not os.path.exists(f'{app.location}'):
-        os.system(f'git clone {app.repo}')
+        git(f'clone {app.repo}')
+        # os.system(f'git clone {app.repo}')
     os.chdir(f'{app.location}')
-    os.system(f'git checkout {app.branch}')
-    os.system(f'git pull origin {app.branch}')
+    git(f'checkout {app.branch}')
+    git(f'pull origin {app.branch}')
+    # os.system(f'git checkout {app.branch}')
+    # os.system(f'git pull origin {app.branch}')
     os.system(f'sudo service {app.name}-{app.branch} restart')
 
 
@@ -20,10 +24,14 @@ def create_app(app):
     os.chdir(f'{home}/{app.name}')
     print(app.location)
     if not os.path.exists(f'{app.location}'):
-        os.system(f'git clone {app.repo} {app.branch}')
+        # os.system(f'git clone {app.repo} {app.branch}')
+        git(f'clone {app.repo} {app.branch}')
     os.chdir(f'{app.location}')
-    os.system(f'git checkout {app.branch}')
-    os.system(f'git pull origin {app.branch}')
+    git(f'checkout {app.branch}')
+
+    git(f'pull origin {app.branch}')
+    # os.system(f'git checkout {app.branch}')
+    # os.system(f'git pull origin {app.branch}')
     create_env(app)
     create_uwsgi(app)
     create_service_config(app)
